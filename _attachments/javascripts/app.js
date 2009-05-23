@@ -64,8 +64,7 @@ $(function() {
             };
             $('#slide_count').text(count);
           }
-        })
-        
+        });
       };
       initialized = true;
     }});
@@ -78,7 +77,7 @@ $(function() {
       $('#log').html(data.message);
     }});
   }});
-  sammy.run('#/');
+  sammy.run();
   sammy.trigger('init');
 });
   

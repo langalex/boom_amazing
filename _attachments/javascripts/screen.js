@@ -55,7 +55,7 @@ var Screen = {
       });
 
       $(selector).mousemove(function(event) {
-        if(previouse_mouse_x != null) {
+        if(!that.animating && previouse_mouse_x != null) {
           var delta_x = event.clientX - previouse_mouse_x;
           var delta_y = event.clientY - previouse_mouse_y;
           if(!key_down && mouse_down) {
@@ -85,21 +85,40 @@ var Screen = {
     
   update_canvas: function(canvas, group, _screen, animate) {
     if(animate) {
-      var distance = this.last_transformation.translate_x - _screen.translate_x;
-      var that = this;
-      var animator = window.setInterval(function() {
-        if((distance > 0 && _screen.translate_x < that.last_transformation.translate_x) || (distance < 0 && _screen.translate_x > that.last_transformation.translate_x)) {
-          var new_x = 0;
-          if(that.last_transformation.translate_x > _screen.translate_x) {
-            new_x = that.last_transformation.translate_x - distance / 100;
-          } else {
-            new_x = that.last_transformation.translate_x + distance / 100;
-          };
-          that.transform_canvas(canvas, group, _screen, new_x, that.last_transformation.translate_y, that.last_transformation.rotate, that.last_transformation.scale);
-        } else {
-          window.clearInterval(animator);
+      var interpolator = function(old_value, target_value) {
+        var distance = old_value - target_value;
+        var new_value = old_value;
+        return {
+          next: function() {
+            if(this.is_done()) {
+              return new_value;
+            };
+            new_value = new_value - distance / 50;
+            return new_value;
+          },
+          is_done: function() {
+            return distance == 0 || (distance > 0 && target_value >= new_value) || (distance < 0 && target_value <= new_value);
+          }
         };
-      }, 10);
+      }
+      
+      var x_interpolator = interpolator(this.last_transformation.translate_x, _screen.translate_x);
+      var y_interpolator = interpolator(this.last_transformation.translate_y, _screen.translate_y);
+      var rotation_interpolator = interpolator(this.last_transformation.rotate, _screen.rotate);
+      var scale_interpolator = interpolator(this.last_transformation.scale, _screen.scale);
+      
+      var that = this;
+      this.animating = true;
+      var animator = window.setInterval(function() {
+        var done = x_interpolator.is_done() && y_interpolator.is_done() && rotation_interpolator.is_done() && scale_interpolator.is_done();
+        
+        that.transform_canvas(canvas, group, _screen, x_interpolator.next(), y_interpolator.next(), rotation_interpolator.next(), scale_interpolator.next());
+        
+        if(done) {
+          window.clearInterval(animator);
+          that.animating = false;
+        };
+      }, 5);
       
     } else {
       this.transform_canvas(canvas, group, _screen, _screen.translate_x, _screen.translate_y, _screen.rotate, _screen.scale)
