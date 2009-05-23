@@ -1,22 +1,34 @@
 var Screen = {
-  init: function(selector, svg_file) {
+  init: function(selector, svg_file, callback) {
     var that = this;
     $(selector).svg({loadURL: svg_file, onLoad: function(_svg) {
-      var canvas = _svg,
+      var canvas = _svg;
+      
+      var all = $('svg *');
+      all.remove();
+      var group = canvas.group(canvas.root());
+      $(group).append(all);
+      
       var _screen = {
         scale: 1, 
         rotate: 0,
         rot_x: 0,
         rot_y: 0,
         translate_x: 0,
-        translate_y: 0
+        translate_y: 0,
+        update_canvas: function() {
+          that.update_canvas(canvas, group, _screen);
+        },
+        to_json: function() {
+          return {
+            scale: this.scale, 
+            rotate: this.rotate,
+            translate_x: this.translate_x,
+            translate_y: this.translate_y
+          }
+        }
       };
 
-      var all = $('svg *');
-      all.remove();
-      var group = canvas.group(canvas.root());
-      $(group).append(all);
-      
       var previouse_mouse_x = null, previouse_mouse_y = null;
       var mouse_down = false;
       var key_down = null;
@@ -34,15 +46,15 @@ var Screen = {
         key_down = null;
       });
 
-      $('#content').mousedown(function(event) {
+      $(selector).mousedown(function(event) {
         mouse_down = true;
       });
 
-      $('#content').mouseup(function(event) {
+      $(selector).mouseup(function(event) {
         mouse_down = false;
       });
 
-      $('#content').mousemove(function(event) {
+      $(selector).mousemove(function(event) {
         if(previouse_mouse_x != null) {
           var delta_x = event.clientX - previouse_mouse_x;
           var delta_y = event.clientY - previouse_mouse_y;
@@ -58,7 +70,9 @@ var Screen = {
         previouse_mouse_x = event.clientX;
         previouse_mouse_y = event.clientY;
       });
-      return _screen;
+      if(callback) {
+        callback(_screen);
+      }
     }});
   },
     

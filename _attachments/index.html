@@ -6,8 +6,20 @@
     <link rel="stylesheet" href="style/jquery.svg.css" type="text/css">
   </head>
   <body>
-    <div id="content"></div>
+    <div id="screen"></div>
+    <div id="controls">
+      <div style="float:right">
+        Slides: <span id="current_slide">1</span>/<span id="slide_count"></span>
+        <form action="#/slides" method="post">
+          <input type="submit" value="Save">
+        </form>
+      </div>
+      
+      <a href="#/slides/1" id="previous_link">Previous</a>
+      <a href="#/slides/2" id="next_link">Next</a>
+    </div>
     <p class="hint">Move: click & drag mouse, rotate: [ctrl] + move, scale: [alt] + move</p>
+    <div id="log"></div>
   </body>
   <script src="/_utils/script/json2.js"></script>
   <script src="/_utils/script/jquery.js?1.2.6"></script>

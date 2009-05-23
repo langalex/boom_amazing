@@ -9,7 +9,15 @@ body {
   color: gray;
 }
 
-#content {
+#controls {
+  width:1000px;
+}
+
+#controls form {
+  display: inline-block;
+}
+
+#screen {
   width:1000px;
   height:650px;
   border: 1px solid black;
