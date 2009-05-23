@@ -1,0 +1,7 @@
+{
+  "env": { 
+    "default": {
+      "db": "http://localhost:5984/hi_sam"
+    }
+  }
+}
