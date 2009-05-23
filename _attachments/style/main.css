@@ -1,7 +1,16 @@
 /* add styles here */
 
+body {
+  font-family: sans-serif;
+  font-size: 1.0em;
+}
+
+.hint {
+  color: gray;
+}
+
 #content {
-  width:800px;
-  height:600px;
+  width:1000px;
+  height:650px;
   border: 1px solid black;
 }
