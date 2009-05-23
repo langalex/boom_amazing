@@ -17,7 +17,7 @@ var Screen = {
         translate_x: 0,
         translate_y: 0,
         update_canvas: function() {
-          that.update_canvas(canvas, group, _screen);
+          that.update_canvas(canvas, group, _screen, true);
         },
         to_json: function() {
           return {
@@ -75,9 +75,46 @@ var Screen = {
       }
     }});
   },
+  
+  last_transformation: {
+    translate_x: 0,
+    translate_y: 0,
+    rotate: 0,
+    scale: 1
+  },
     
-  update_canvas: function(canvas, group, _screen) {
-    canvas.change(group, {'transform': 'translate(' + _screen.translate_x + ',' + _screen.translate_y + '), rotate(' + _screen.rotate + ') scale(' + _screen.scale + ' ' + _screen.scale + ')'});
+  update_canvas: function(canvas, group, _screen, animate) {
+    if(animate) {
+      var distance = this.last_transformation.translate_x - _screen.translate_x;
+      var that = this;
+      var animator = window.setInterval(function() {
+        if((distance > 0 && _screen.translate_x < that.last_transformation.translate_x) || (distance < 0 && _screen.translate_x > that.last_transformation.translate_x)) {
+          var new_x = 0;
+          if(that.last_transformation.translate_x > _screen.translate_x) {
+            new_x = that.last_transformation.translate_x - distance / 100;
+          } else {
+            new_x = that.last_transformation.translate_x + distance / 100;
+          };
+          that.transform_canvas(canvas, group, _screen, new_x, that.last_transformation.translate_y, that.last_transformation.rotate, that.last_transformation.scale);
+        } else {
+          window.clearInterval(animator);
+        };
+      }, 10);
+      
+    } else {
+      this.transform_canvas(canvas, group, _screen, _screen.translate_x, _screen.translate_y, _screen.rotate, _screen.scale)
+    };
+    
+  },
+  
+  transform_canvas: function(canvas, group, _screen, x, y, rotation, scale) {
+    canvas.change(group, {'transform': 'translate(' + x + ',' + y + '), rotate(' + rotation + ') scale(' + scale + ' ' + scale + ')'});
+    this.last_transformation = {
+      translate_x: x,
+      translate_y: y,
+      rotate: rotation,
+      scale: scale
+    }
   },
 
   do_translate: function(delta_x, delta_y, _screen) {
