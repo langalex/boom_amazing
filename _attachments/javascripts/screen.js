@@ -41,21 +41,24 @@ var Screen = {
           key_down = 'rotate';
         }
       });
-
+      
       $('html').keyup(function(event) {
         key_down = null;
       });
-
+      
       $(selector).mousedown(function(event) {
         mouse_down = true;
       });
-
+      
       $(selector).mouseup(function(event) {
         mouse_down = false;
       });
 
       $(selector).mousemove(function(event) {
-        if(!that.animating && previouse_mouse_x != null) {
+        if(this.animating) {
+          return;
+        }
+        if(previouse_mouse_x != null) {
           var delta_x = event.clientX - previouse_mouse_x;
           var delta_y = event.clientY - previouse_mouse_y;
           if(!key_down && mouse_down) {
@@ -66,7 +69,7 @@ var Screen = {
             that.do_rotate(delta_x, delta_y, _screen);
           };
           that.update_canvas(canvas, group, _screen);
-        }
+        };
         previouse_mouse_x = event.clientX;
         previouse_mouse_y = event.clientY;
       });
@@ -87,6 +90,11 @@ var Screen = {
     if(animate) {
       var interpolator = function(old_value, target_value) {
         var distance = old_value - target_value;
+        if(distance < 0) { // make the number a bit bigger for cases where the number is so small it would be rounded town to zero when being divided by 50 below
+          distance -= 0.01;
+        } else {
+          distance += 0.01;
+        }
         var new_value = old_value;
         return {
           next: function() {
@@ -123,7 +131,6 @@ var Screen = {
     } else {
       this.transform_canvas(canvas, group, _screen, _screen.translate_x, _screen.translate_y, _screen.rotate, _screen.scale)
     };
-    
   },
   
   transform_canvas: function(canvas, group, _screen, x, y, rotation, scale) {
