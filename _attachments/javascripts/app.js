@@ -6,7 +6,7 @@ $(function() {
   });
 
   var _screen = null;
-  Screen.init('#screen', './talk.svg', function(__screen) {
+  Screen.init('#screen', '../../presentation/presentation.svg', function(__screen) {
     _screen = __screen;
   });
 
