@@ -6,8 +6,8 @@
 
 * Install CouchApp
 * push the app to a CouchDB database
-* create a document with the id "presentation" and upload an svg file with the name "presentation.svg", for example using Futon (http://localhost:5984/_utils)
-* Go to http://localhost:5984/your_db/boom_amazing/_design/boom_amazing/index.html
+* create a document and upload your svg file, for example using Futon (http://localhost:5984/_utils)
+* Go to http://localhost:5984/your_db/boom_amazing/_design/boom_amazing/index.html?svg={relative path to svg file}
 * Start moving around, click save to add a slide
 * Replay the saved positions by clicking the next/previous links
 * Hack the code, add something awesome, share it on GitHub

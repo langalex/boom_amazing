@@ -1,12 +1,18 @@
 $(function() {
   
+  var svg_path = window.location.href.match(/svg=(.+\.svg)/)[1];
+  if(svg_path == null) {
+    alert('Plese specify the url of the svg file via the svg parameter');
+    return;
+  };
+  
   var couchapp = null;
   $.CouchApp(function(app) {
     couchapp = app;
   });
 
   var _screen = null;
-  Screen.init('#screen', '../../presentation/presentation.svg', function(__screen) {
+  Screen.init('#screen', svg_path, function(__screen) {
     _screen = __screen;
   });
 
