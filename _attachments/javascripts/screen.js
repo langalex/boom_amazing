@@ -101,7 +101,7 @@ var Screen = {
             if(this.is_done()) {
               return new_value;
             };
-            new_value = new_value - distance / 50;
+            new_value = new_value - distance / 20;
             return new_value;
           },
           is_done: function() {
@@ -144,12 +144,12 @@ var Screen = {
   },
 
   do_translate: function(delta_x, delta_y, _screen) {
-    _screen.translate_x += delta_x;
-    _screen.translate_y += delta_y;
+    _screen.translate_x += delta_x * 4;
+    _screen.translate_y += delta_y * 4;
   },
 
   do_scale: function(delta_x, delta_y, _screen) {
-    _screen.scale += delta_y / 200.0;
+    _screen.scale += delta_y / 100.0;
   },
 
   do_rotate: function(delta_x, delta_y, _screen) {
