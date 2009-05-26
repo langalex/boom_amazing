@@ -28,7 +28,8 @@ $(function() {
         limit: 1,
         skip: slide_number - 1,
         success: function(json) {
-          var transformaton = json['rows'][0]['doc']['transformation'];
+          var slide = json['rows'][0]['doc'];
+          var transformaton = slide['transformation'];
           for(var i in transformaton) {
             _screen[i] = transformaton[i];
           };
@@ -36,6 +37,15 @@ $(function() {
           $('#current_slide').text(slide_number);
           $('#next_link').attr('href', '#/slides/' + (slide_number + 1));
           $('#previous_link').attr('href', '#/slides/' + (slide_number > 1 ? slide_number - 1 : 1));
+          couchapp.db.saveDoc({
+              type: 'SlideView',
+              created_at: new Date().toJSON(),
+              slide_id: slide._id
+            }, {
+            success: function(json) {
+              console.log('stored slideview: ', json)
+            }
+          });
         }
       })
     }});
