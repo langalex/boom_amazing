@@ -43,11 +43,39 @@ $(function() {
               slide_id: slide._id
             }, {
             success: function(json) {
-              console.log('stored slideview: ', json)
             }
           });
         }
       })
+    }});
+    
+    get('#/slide_views/:number', function() { with(this) {
+      var context = this;
+      var slide_view_number = parseInt(params['number']);
+      couchapp.design.view('slide_views', {
+        reduce: false,
+        include_docs: true,
+        limit: 2,
+        skip: slide_view_number - 1,
+        success: function(json) {
+          var slide_view = json['rows'][0]['doc'];
+          var next_slide_view = json['rows'][1]['doc'];
+          var slide = couchapp.db.openDoc(slide_view.slide_id, {
+            success: function(slide) {
+              var transformation = slide['transformation'];
+              for(var i in transformation) {
+                _screen[i] = transformation[i];
+              };
+              _screen.update_canvas();
+            }
+          });
+          var last_view_time = context.last_view_time || new Date();
+          window.setTimeout(function() {
+            location.hash = '/slide_views/' + (parseInt(slide_view_number) + 1);
+          }, new Date(next_slide_view.created_at) - new Date(slide_view.created_at) - (new Date() - last_view_time));
+        }
+      });
+      this.last_view_time = new Date();
     }});
     
     post('#/slides', function() { with(this) {
