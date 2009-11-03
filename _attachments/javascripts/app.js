@@ -1,7 +1,5 @@
 $(function() {
   
-  $('#screen').width($('body').width() - 20).height($(window).height() - 20);
-  
   var hideControls = true;
   $('#controls').mouseenter(function() {
     if(!$(this).data('original_top')) {
