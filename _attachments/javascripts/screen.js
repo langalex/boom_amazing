@@ -16,6 +16,8 @@ var Screen = {
         rot_y: 0,
         translate_x: 0,
         translate_y: 0,
+        anchor_x: 0,
+        anchor_y: 0,
         update_canvas: function() {
           that.update_canvas(canvas, group, _screen, true);
         },
@@ -29,7 +31,7 @@ var Screen = {
         }
       };
 
-      var previouse_mouse_x = null, previouse_mouse_y = null;
+      var previous_mouse_x = null, previous_mouse_y = null;
       var mouse_down = false;
       var key_down = null;
 
@@ -44,6 +46,8 @@ var Screen = {
       
       $('html').keyup(function(event) {
         key_down = null;
+        _screen.anchor_x = 0;
+        _screen.anchor_y = 0;
       });
       
       $(selector).mousedown(function(event) {
@@ -58,9 +62,13 @@ var Screen = {
         if(this.animating) {
           return;
         }
-        if(previouse_mouse_x != null) {
-          var delta_x = event.clientX - previouse_mouse_x;
-          var delta_y = event.clientY - previouse_mouse_y;
+        if(_screen.anchor_x == 0 && _screen.anchor_y == 0) {
+          _screen.anchor_x = event.clientX * 2;
+          _screen.anchor_y = event.clientY * 2;
+        }
+        if(previous_mouse_x != null) {
+          var delta_x = event.clientX - previous_mouse_x;
+          var delta_y = event.clientY - previous_mouse_y;
           if(!key_down && mouse_down) {
             that.do_translate(delta_x, delta_y, _screen);
           } else if(key_down == 'scale') {
@@ -70,8 +78,8 @@ var Screen = {
           };
           that.update_canvas(canvas, group, _screen);
         };
-        previouse_mouse_x = event.clientX;
-        previouse_mouse_y = event.clientY;
+        previous_mouse_x = event.clientX;
+        previous_mouse_y = event.clientY;
       });
       if(callback) {
         callback(_screen);
@@ -90,7 +98,7 @@ var Screen = {
     if(animate) {
       var interpolator = function(old_value, target_value) {
         var distance = old_value - target_value;
-        if(distance < 0) { // make the number a bit bigger for cases where the number is so small it would be rounded town to zero when being divided by 50 below
+        if(distance < 0) { // make the number a bit bigger for cases where the number is so small it would be rounded down to zero when being divided by 50 below
           distance -= 0.01;
         } else {
           distance += 0.01;
@@ -134,7 +142,13 @@ var Screen = {
   },
   
   transform_canvas: function(canvas, group, _screen, x, y, rotation, scale) {
-    canvas.change(group, {'transform': 'translate(' + x + ',' + y + '), rotate(' + rotation + ') scale(' + scale + ' ' + scale + ')'});
+    var transformations = [
+      'translate(' + [x, y] + ')',
+      'rotate(' + [rotation, _screen.anchor_x, _screen.anchor_y].join(' ') + ')',
+      'scale(' + [scale, scale].join(' ') + ')'
+    ];
+    console.log(transformations.join(' '));
+    canvas.change(group, { 'transform': transformations.join(' ') });
     this.last_transformation = {
       translate_x: x,
       translate_y: y,
