@@ -16,8 +16,6 @@ var Screen = {
         rot_y: 0,
         translate_x: 0,
         translate_y: 0,
-        anchor_x: 0,
-        anchor_y: 0,
         update_canvas: function() {
           that.update_canvas(canvas, group, _screen, true);
         },
@@ -46,8 +44,6 @@ var Screen = {
       
       $('html').keyup(function(event) {
         key_down = null;
-        _screen.anchor_x = 0;
-        _screen.anchor_y = 0;
       });
       
       $(selector).mousedown(function(event) {
@@ -61,10 +57,6 @@ var Screen = {
       $(selector).mousemove(function(event) {
         if(this.animating) {
           return;
-        }
-        if(_screen.anchor_x == 0 && _screen.anchor_y == 0) {
-          _screen.anchor_x = event.clientX * 2;
-          _screen.anchor_y = event.clientY * 2;
         }
         if(previous_mouse_x != null) {
           var delta_x = event.clientX - previous_mouse_x;
@@ -85,6 +77,8 @@ var Screen = {
         callback(_screen);
       }
     }});
+    this.container = $(selector + ' svg');
+    
   },
   
   last_transformation: {
@@ -142,12 +136,14 @@ var Screen = {
   },
   
   transform_canvas: function(canvas, group, _screen, x, y, rotation, scale) {
+    var container_scale_factor = this.container.attr('viewBox').baseVal.width / this.container.width();
+    var center_offset_x = this.container.width() / 2.0 * container_scale_factor;
+    var center_offset_y = this.container.height() / 2.0 * container_scale_factor;
     var transformations = [
       'translate(' + [x, y] + ')',
-      'rotate(' + [rotation, _screen.anchor_x, _screen.anchor_y].join(' ') + ')',
+      'rotate(' + [rotation, _screen.translate_x * -1 + center_offset_x, _screen.translate_y * -1 + center_offset_y].join(' ') + ')',
       'scale(' + [scale, scale].join(' ') + ')'
     ];
-    console.log(transformations.join(' '));
     canvas.change(group, { 'transform': transformations.join(' ') });
     this.last_transformation = {
       translate_x: x,
