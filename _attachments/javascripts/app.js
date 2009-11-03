@@ -1,16 +1,5 @@
 $(function() {
   
-  var svg_path = window.location.href.match(/svg=(.+\.svg)/)[1];
-  if(svg_path == null) {
-    alert('Plese specify the url of the svg file via the svg parameter');
-    return;
-  };
-  
-  var couchapp = null;
-  $.CouchApp(function(app) {
-    couchapp = app;
-  });
-  
   $('#screen').width($('body').width() - 20).height($(window).height() - 20);
   
   var hideControls = true;
@@ -29,6 +18,32 @@ $(function() {
     }, 500);
     hideControls = true;
   });
+  
+  var couchapp = null;
+  $.CouchApp(function(app) {
+    couchapp = app;
+  });
+  
+  couchapp.design.view('presentations', {
+    success: function(json) {
+      for(var i in json['rows']) {
+        var presentation = json['rows'][i];
+        $('#presentation').append('<option value="' + presentation.id + '">' + presentation.value + '</option>');
+      }
+    }
+  });
+  
+  $('#presentation').change(function() {
+    location.href = location.pathname + '?svg=../../' + $(this).val() + '/' + $(this).text();
+  });
+  
+  var svg_path = window.location.href.match(/svg=(.+\.svg)/);
+  if(svg_path == null) {
+    $('#screen').html('<div class="notice">Plese select an svg from the list in the toolbar. If there is none attach one to any document.</div>');
+    return;
+  } else {
+    svg_path = svg_path[1];
+  };
 
   var _screen = null;
   Screen.init('#screen', svg_path, function(__screen) {

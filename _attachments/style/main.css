@@ -12,6 +12,14 @@ body {
   color: gray;
 }
 
+#screen .notice {
+  text-align: center;
+  margin-top: 100px;
+  font-size: 25px;
+  font-weight: bold;
+  color: #666;
+}
+
 #controls {
   position: absolute;
   top: -20px;
