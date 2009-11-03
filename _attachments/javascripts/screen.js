@@ -78,7 +78,6 @@ var Screen = {
       }
     }});
     this.container = $(selector + ' svg');
-    
   },
   
   last_transformation: {
@@ -131,17 +130,26 @@ var Screen = {
       }, 5);
       
     } else {
-      this.transform_canvas(canvas, group, _screen, _screen.translate_x, _screen.translate_y, _screen.rotate, _screen.scale)
+      this.transform_canvas(
+        canvas,
+        group,
+        _screen,
+        _screen.translate_x,
+        _screen.translate_y,
+        _screen.rotate,
+        _screen.scale
+      )
     };
   },
   
   transform_canvas: function(canvas, group, _screen, x, y, rotation, scale) {
-    var container_scale_factor = this.container.attr('viewBox').baseVal.width / this.container.width();
-    var center_offset_x = this.container.width() / 2.0 * container_scale_factor;
-    var center_offset_y = this.container.height() / 2.0 * container_scale_factor;
+    var centered_x = x * scale - (this.center_offset_x() * (scale - 1));
+    var centered_y = y * scale - (this.center_offset_y() * (scale - 1));
     var transformations = [
-      'translate(' + [x, y] + ')',
-      'rotate(' + [rotation, _screen.translate_x * -1 + center_offset_x, _screen.translate_y * -1 + center_offset_y].join(' ') + ')',
+      'translate(' + [centered_x,
+                      centered_y] + ')',
+      'rotate(' + [rotation, centered_x * -1 + this.center_offset_x(),
+                             centered_y * -1 + this.center_offset_y()].join(' ') + ')',
       'scale(' + [scale, scale].join(' ') + ')'
     ];
     canvas.change(group, { 'transform': transformations.join(' ') });
@@ -152,14 +160,26 @@ var Screen = {
       scale: scale
     }
   },
-
+  
+  container_scale_factor: function() {
+    return this.container.attr('viewBox').baseVal.width / this.container.width();
+  },
+  
+  center_offset_x: function() {
+    return this.container.width() / 2.0 * this.container_scale_factor();
+  },
+  
+  center_offset_y: function() {
+    return this.container.height() / 2.0 * this.container_scale_factor();
+  },
+  
   do_translate: function(delta_x, delta_y, _screen) {
-    _screen.translate_x += delta_x * 4;
-    _screen.translate_y += delta_y * 4;
+    _screen.translate_x += delta_x / _screen.scale * this.container_scale_factor();
+    _screen.translate_y += delta_y / _screen.scale * this.container_scale_factor();
   },
 
   do_scale: function(delta_x, delta_y, _screen) {
-    _screen.scale += delta_y / 100.0;
+    _screen.scale += delta_y / -100.0 * _screen.scale;
   },
 
   do_rotate: function(delta_x, delta_y, _screen) {
