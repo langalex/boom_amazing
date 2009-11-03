@@ -10,6 +10,25 @@ $(function() {
   $.CouchApp(function(app) {
     couchapp = app;
   });
+  
+  $('#screen').width($('body').width() - 20).height($(window).height() - 20);
+  
+  var hideControls = true;
+  $('#controls').mouseenter(function() {
+    if(!$(this).data('original_top')) {
+      $(this).data('original_top', $(this).css('top'));
+    };
+    hideControls = false;
+    $(this).css('top', '0px');
+  }).mouseleave(function(e) {
+    var that = this;
+    window.setTimeout(function() {
+      if(hideControls) {
+        $(that).css('top', $(that).data('original_top'));
+      };
+    }, 500);
+    hideControls = true;
+  });
 
   var _screen = null;
   Screen.init('#screen', svg_path, function(__screen) {
@@ -53,7 +72,6 @@ $(function() {
       var context = this;
       var slide_view_number = parseInt(params['number']);
       couchapp.design.view('slide_views', {
-        reduce: false,
         include_docs: true,
         limit: 2,
         skip: slide_view_number - 1,

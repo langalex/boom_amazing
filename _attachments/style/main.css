@@ -3,6 +3,9 @@
 body {
   font-family: sans-serif;
   font-size: 1.0em;
+  background-color: black;
+  margin: 0px;
+  padding: 0px;
 }
 
 .hint {
@@ -10,15 +13,27 @@ body {
 }
 
 #controls {
-  width:1000px;
+  position: absolute;
+  top: -20px;
+  left: 0px;
+  background-color: #333;
+  width:99%;
+  color: #CCC;
+  font-size: 12px;
+  padding-top: 6px;
 }
 
 #controls form {
   display: inline-block;
 }
 
-#screen {
-  width:1000px;
-  height:650px;
-  border: 1px solid black;
+#controls a, #controls form input[type=submit] {
+  text-decoration: none;
+  background-color: #666;
+  border: 1px solid #999;
+  -webkit-border-radius: 6px;
+  color: #CCC;
+  display: inline;
+  margin: 1px;
+  padding: 1px;
 }
