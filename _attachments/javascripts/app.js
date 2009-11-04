@@ -26,13 +26,14 @@ $(function() {
     success: function(json) {
       for(var i in json['rows']) {
         var presentation = json['rows'][i];
-        $('#presentation').append('<option value="' + presentation.id + '">' + presentation.value + '</option>');
-      }
+        $('#presentation').append('<option value="' + presentation.id + '" ' + (location.href.match(presentation.id + '/' + presentation.value) ? 'selected="selected"' : '') + '>' + presentation.value + '</option>');
+        $(window).trigger('presentaions-loaded');
+      };
     }
   });
   
   $('#presentation').change(function() {
-    location.href = location.pathname + '?svg=../../' + $(this).val() + '/' + $(this).text();
+    location.href = location.pathname + '?svg=../../' + $(this).val() + '/' + $(this).find(':selected').text();
   });
   
   var svg_path = window.location.href.match(/svg=(.+\.svg)/);
@@ -52,13 +53,22 @@ $(function() {
     element_selector = '#controls';
     initialized = false;
     
+    helpers({
+      current_presentation_id: function() {
+        return $('#presentation').val() + '/' + $('#presentation :selected').text();
+      }
+    });
+    
     get('#/slides/:number', function() { with(this) {
+      var context = this;
       var slide_number = parseInt(params['number']);
       couchapp.design.view('slides', {
         reduce: false,
         include_docs: true,
         limit: 1,
         skip: slide_number - 1,
+        startkey: [context.current_presentation_id(), null],
+        endkey: [context.current_presentation_id(), {}],
         success: function(json) {
           var slide = json['rows'][0]['doc'];
           var transformaton = slide['transformation'];
@@ -110,7 +120,8 @@ $(function() {
     }});
     
     post('#/slides', function() { with(this) {
-      var slide = {type: 'Slide', transformation: _screen.to_json(), created_at: new Date().toJSON()};
+      var context = this;
+      var slide = {type: 'Slide', transformation: _screen.to_json(), created_at: new Date().toJSON(), presentation_id: context.current_presentation_id()};
       couchapp.db.saveDoc(slide, {
         success: function() {
           $('#slide_count').text(parseInt($('#slide_count').text()) + 1);
@@ -128,8 +139,11 @@ $(function() {
     });
     
     bind('init', function() { with(this) {
+      var context = this;
       if(!initialized) {
         couchapp.design.view('slides', {
+          startkey: [context.current_presentation_id(), null],
+          endkey: [context.current_presentation_id(), {}],
           success: function(json) {
             var count = null;
             if(json['rows'][0]) {
@@ -153,6 +167,11 @@ $(function() {
     }});
   }});
   sammy.run();
-  sammy.trigger('init');
+  
+  $(window).bind('presentaions-loaded', function() {
+    sammy.trigger('init');
+  })
+  
+  
 });
   
