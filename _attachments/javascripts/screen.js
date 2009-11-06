@@ -10,6 +10,7 @@ var Screen = {
       $(group).append(all);
       
       var _screen = {
+		animationSteps: 10,
         scale: 1, 
         rotate: 0,
         rot_x: 0,
@@ -102,7 +103,7 @@ var Screen = {
             if(this.is_done()) {
               return new_value;
             };
-            new_value = new_value - distance / 20;
+            new_value = new_value - distance / _screen.animationSteps;
             return new_value;
           },
           is_done: function() {
