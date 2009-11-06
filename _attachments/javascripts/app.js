@@ -167,10 +167,19 @@ $(function() {
     }});
   }});
   sammy.run();
+
+  $('html').keydown(function(_event) {
+	if(_event.keyCode == 32) {
+		location.href = $('#next_link').attr('href');
+	};
+	if(_event.keyCode == 66) {
+		location.href = $('#previous_link').attr('href');
+	};
+  });
   
   $(window).bind('presentaions-loaded', function() {
     sammy.trigger('init');
-  })
+  });
   
   
 });
