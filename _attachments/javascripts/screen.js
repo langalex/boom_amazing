@@ -162,7 +162,12 @@ var Screen = {
   },
   
   container_scale_factor: function() {
-    return this.container.attr('viewBox').baseVal.width / this.container.width();
+	var factor = this.container.attr('viewBox').baseVal.width / this.container.width();
+	if(factor == 0) {
+		return 1
+	} else {
+		return factor;
+	};
   },
   
   center_offset_x: function() {
