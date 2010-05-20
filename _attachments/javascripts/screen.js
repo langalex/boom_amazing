@@ -43,10 +43,10 @@ var Screen = {
     
   update_canvas: function(animate) {
     if(animate) {
-      var x_interpolator = interpolator(this.last_transformation.translate_x, this.screen.translate_x);
-      var y_interpolator = interpolator(this.last_transformation.translate_y, this.screen.translate_y);
-      var rotation_interpolator = interpolator(this.last_transformation.rotate, this.screen.rotate);
-      var scale_interpolator = interpolator(this.last_transformation.scale, this.screen.scale);
+      var x_interpolator = interpolator(this.last_transformation.translate_x, this.screen.translate_x, this.screen.animationSteps);
+      var y_interpolator = interpolator(this.last_transformation.translate_y, this.screen.translate_y, this.screen.animationSteps);
+      var rotation_interpolator = interpolator(this.last_transformation.rotate, this.screen.rotate, this.screen.animationSteps);
+      var scale_interpolator = interpolator(this.last_transformation.scale, this.screen.scale, this.screen.animationSteps);
       
       var that = this;
       this.animating = true;
