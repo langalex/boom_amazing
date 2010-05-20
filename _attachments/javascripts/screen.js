@@ -72,44 +72,20 @@ var Screen = {
   },
   
   transform_canvas: function(x, y, rotation, scale) {
-    var centered_x = x + compensate_for_scale(x);
-    var centered_y = y + compensate_for_scale(y);
-    // var centered_x = x * scale - (this.center_offset_x() * (scale - 1));
-    // var centered_y = y * scale - (this.center_offset_y() * (scale - 1));
     var transformations = [
-      'translate(' + [parseInt(centered_x) + 'px',
-                      parseInt(centered_y)] + 'px)',
+      'translate(' + [parseInt(x) + 'px',
+                      parseInt(y)] + 'px)',
       'rotate(' + rotation + 'deg' + ')',
       'scale(' + scale + ')'
     ];
     this.canvas.css('-webkit-transform', transformations.join(' '));
+    this.canvas.css('-webkit-transform-origin', (this.canvas.width()/2 - x) + 'px ' + (this.canvas.height()/2 - y) + 'px');
     this.last_transformation = {
       translate_x: x,
       translate_y: y,
       rotate: rotation,
       scale: scale
     }
-    
-    function compensate_for_scale(translation) {
-      return scale * translation;
-    };
-  },
-  
-  container_scale_factor: function() {
-  	var factor = this.container.attr('viewBox').baseVal.width / this.container.width();
-  	if(factor == 0) {
-  		return 1
-  	} else {
-  		return factor;
-  	};
-  },
-  
-  center_offset_x: function() {
-    return this.container.width() / 2.0 * this.container_scale_factor();
-  },
-  
-  center_offset_y: function() {
-    return this.container.height() / 2.0 * this.container_scale_factor();
   },
   
   do_translate: function(delta_x, delta_y) {
