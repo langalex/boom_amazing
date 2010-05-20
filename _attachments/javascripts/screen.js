@@ -72,11 +72,13 @@ var Screen = {
   },
   
   transform_canvas: function(x, y, rotation, scale) {
+    var centered_x = x + scale * x;
+    var centered_y = y + scale * y;
     // var centered_x = x * scale - (this.center_offset_x() * (scale - 1));
     // var centered_y = y * scale - (this.center_offset_y() * (scale - 1));
     var transformations = [
-      'translate(' + [parseInt(x) + 'px',
-                      parseInt(y)] + 'px)',
+      'translate(' + [parseInt(centered_x) + 'px',
+                      parseInt(centered_y)] + 'px)',
       'rotate(' + rotation + 'deg' + ')',
       'scale(' + scale + ')'
     ];
@@ -110,11 +112,11 @@ var Screen = {
     this.screen.translate_x += delta_x;
     this.screen.translate_y += delta_y;
     this.update_canvas();
-    
   },
 
   do_scale: function(delta_x, delta_y) {
-    this.screen.scale += delta_y / -100.0 * this.screen.scale;
+    var delta_scale = delta_y / -100.0 * this.screen.scale;
+    this.screen.scale += delta_scale;
     this.update_canvas();
   },
 
