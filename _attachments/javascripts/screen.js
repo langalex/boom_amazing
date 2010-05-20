@@ -107,8 +107,8 @@ var Screen = {
   },
   
   do_translate: function(delta_x, delta_y) {
-    this.screen.translate_x += delta_x / this.screen.scale;
-    this.screen.translate_y += delta_y / this.screen.scale;
+    this.screen.translate_x += delta_x;
+    this.screen.translate_y += delta_y;
     this.update_canvas();
     
   },
