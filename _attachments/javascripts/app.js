@@ -27,7 +27,7 @@ $(function() {
       for(var i in json['rows']) {
         var presentation = json['rows'][i];
         $('#presentation').append('<option value="' + presentation.id + '" ' + (location.href.match(presentation.id + '/' + presentation.value) ? 'selected="selected"' : '') + '>' + presentation.value + '</option>');
-        $(window).trigger('presentaions-loaded');
+        $(window).trigger('presentations-loaded');
       };
     }
   });
@@ -38,15 +38,17 @@ $(function() {
   
   var svg_path = window.location.href.match(/svg=(.+\.svg)/);
   if(svg_path == null) {
-    $('#screen').html('<div class="notice">Plese select an svg from the list in the toolbar. If there is none attach one to any document.</div>');
+    $('#screen').html('<div class="notice">Plese select a presentation from the list in the toolbar. If there is none attach one to any document.</div>');
     return;
   } else {
     svg_path = svg_path[1];
+    $('title').text(svg_path.split('/').reverse()[0] + ' - boom amazing');
   };
 
   var _screen = null;
   Screen.init('#screen', svg_path, function(__screen) {
-    _screen = __screen;
+    _screen = __screen.screen;
+    bind_controls(__screen);
   });
 
   var sammy = $.sammy(function() { with(this) {
@@ -177,7 +179,7 @@ $(function() {
 	};
   });
   
-  $(window).bind('presentaions-loaded', function() {
+  $(window).bind('presentations-loaded', function() {
     sammy.trigger('init');
   });
   
