@@ -72,8 +72,8 @@ var Screen = {
   },
   
   transform_canvas: function(x, y, rotation, scale) {
-    var centered_x = x + scale * x;
-    var centered_y = y + scale * y;
+    var centered_x = x + compensate_for_scale(x);
+    var centered_y = y + compensate_for_scale(y);
     // var centered_x = x * scale - (this.center_offset_x() * (scale - 1));
     // var centered_y = y * scale - (this.center_offset_y() * (scale - 1));
     var transformations = [
@@ -89,6 +89,10 @@ var Screen = {
       rotate: rotation,
       scale: scale
     }
+    
+    function compensate_for_scale(translation) {
+      return scale * translation;
+    };
   },
   
   container_scale_factor: function() {
