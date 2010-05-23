@@ -17,19 +17,20 @@ $(function() {
     hideControls = true;
   });
   
-  var couchapp = null;
-  $.CouchApp(function(app) {
-    couchapp = app;
+  var store = null;
+  $.CouchApp(function(couchapp) {
+    store = Store(couchapp);
   });
   
-  couchapp.design.view('presentations', {
-    success: function(json) {
-      for(var i in json['rows']) {
-        var presentation = json['rows'][i];
-        $('#presentation').append('<option value="' + presentation.id + '" ' + (location.href.match(presentation.id + '/' + presentation.value) ? 'selected="selected"' : '') + '>' + presentation.value + '</option>');
-        $(window).trigger('presentations-loaded');
-      };
-    }
+  store.presentations(function(presentations) {
+    for(var i in presentations) {
+      var presentation = presentations[i];
+      $('#presentation').append('<option value="' +
+        presentation.id + '" ' + (
+          location.href.match(presentation.id + '/' + presentation.name) ? 'selected="selected"' : '') +
+          '>' + presentation.name + '</option>');
+    };
+    $(window).trigger('presentations-loaded');
   });
   
   $('#presentation').change(function() {
@@ -45,11 +46,9 @@ $(function() {
     $('title').text(presentation_path.split('/').reverse()[0] + ' - boom amazing');
   };
 
-  
   $('#screen').svg({loadURL: presentation_path});
   var _screen = Screen('#screen');
   bind_controls(_screen);
-  
 
   var sammy = $.sammy(function() {
     this.element_selector = '#controls';
@@ -61,105 +60,50 @@ $(function() {
       }
     });
     
-    get('#/slides/:number', function(context) {
-      var slide_number = parseInt(params['number'], 10);
-      couchapp.design.view('slides', {
-        reduce: false,
-        include_docs: true,
-        limit: 1,
-        skip: slide_number - 1,
-        startkey: [context.current_presentation_id(), null],
-        endkey: [context.current_presentation_id(), {}],
-        success: function(json) {
-          var slide = json['rows'][0]['doc'];
-          var transformation = slide['transformation'];
-          _screen.transform_to(transformation);
-          $('#current_slide').text(slide_number);
-          $('#next_link').attr('href', '#/slides/' + (slide_number + 1));
-          $('#previous_link').attr('href', '#/slides/' + (slide_number > 1 ? slide_number - 1 : 1));
-          couchapp.db.saveDoc({
-              type: 'SlideView',
-              created_at: new Date().toJSON(),
-              slide_id: slide._id
-            }, {
-            success: function(json) {
-            }
-          });
-        }
+    this.get('#/slides/:number', function(context) {
+      var slide_number = parseInt(context.params['number'], 10);
+      store.slide_by_number(context.current_presentation_id(), slide_number, function(slide) {
+        var transformation = slide.transformation;
+        _screen.transform_to(transformation);
+        $('#current_slide').text(slide_number);
+        $('#next_link').attr('href', '#/slides/' + (slide_number + 1));
+        $('#previous_link').attr('href', '#/slides/' + (slide_number > 1 ? slide_number - 1 : 1));
+        store.save_slide_view(slide);
       });
     });
     
-    get('#/slide_views/:number', function(context) {
-      var slide_view_number = parseInt(params['number'], 10);
-      couchapp.design.view('slide_views', {
-        include_docs: true,
-        limit: 2,
-        skip: slide_view_number - 1,
-        success: function(json) {
-          var slide_view = json['rows'][0]['doc'];
-          var next_slide_view = json['rows'][1]['doc'];
-          var slide = couchapp.db.openDoc(slide_view.slide_id, {
-            success: function(slide) {
-              var transformation = slide['transformation'];
-              for(var i in transformation) {
-                _screen[i] = transformation[i];
-              };
-              _screen.update_canvas();
-            }
-          });
-          var last_view_time = context.last_view_time || new Date();
-          window.setTimeout(function() {
-            location.hash = '/slide_views/' + (parseInt(slide_view_number, 10) + 1);
-          }, new Date(next_slide_view.created_at) - new Date(slide_view.created_at) - (new Date() - last_view_time));
-        }
+    this.get('#/slide_views/:number', function(context) {
+      var slide_view_number = parseInt(context.params['number'], 10);
+      store.slide_views(slide_view_number, 2, function(slide_view, next_slide_view) {
+        store.slide(slide_view.slide_id, function(slide) {
+          _screen.transform_to(slide.transformation);
+        });
+        var last_view_time = context.last_view_time || new Date();
+        window.setTimeout(function() {
+          location.hash = '/slide_views/' + (slide_view_number + 1);
+        }, new Date(next_slide_view.created_at) - new Date(slide_view.created_at) - (new Date() - last_view_time));
       });
       this.last_view_time = new Date();
     });
     
-    post('#/slides', function(context) {
+    this.post('#/slides', function(context) {
       var slide = {type: 'Slide', transformation: _screen.to_json(), created_at: new Date().toJSON(), presentation_id: context.current_presentation_id()};
-      couchapp.db.saveDoc(slide, {
-        success: function() {
-          $('#slide_count').text(parseInt($('#slide_count').text(), 10) + 1);
-          $('#current_slide').text($('#slide_count').text());
-        },
-        error: function(response_code, json) {
-          trigger('error', {message: "Error Saving Slide: " + json});
-        }
+      store.save_slide(slide, function() {
+        $('#slide_count').text(parseInt($('#slide_count').text(), 10) + 1);
+        $('#current_slide').text($('#slide_count').text());
       });
       return false;
     });
     
-    before(function() {
-      $('#log').html('');
-    });
-    
-    bind('init', function(context) {
+    this.bind('init', function() {
       if(!this.initialized) {
-        couchapp.design.view('slides', {
-          startkey: [context.current_presentation_id(), null],
-          endkey: [context.current_presentation_id(), {}],
-          success: function(json) {
-            var count = null;
-            if(json['rows'][0]) {
-              count = json['rows'][0]['value'];
-            } else {
-              count = 0;
-            };
-            $('#slide_count').text(count);
-          }
+        store.slide_count(this.current_presentation_id(), function(count) {
+          $('#slide_count').text(count);
         });
       };
       this.initialized = true;
     });
 
-    bind('error', function(e, data) {
-      $('#log').html(data.message);
-    });
-
-    bind('notice', function(e, data) {
-      $('#log').html(data.message);
-    });
   });
   sammy.run();
 
