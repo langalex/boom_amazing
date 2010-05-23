@@ -1,107 +1,94 @@
-var Screen = {
-  init: function(selector, svg_file, callback) {
-    this.screen = {};
-    this.canvas = null;
-    var that = this;
-    $(selector).svg({loadURL: svg_file, onLoad: function(_svg) {
-      that.canvas = $(selector);
-      
-      $.extend(that.screen, {
-		    animationSteps: 10,
-        scale: 1, 
-        rotate: 0,
-        rot_x: 0,
-        rot_y: 0,
-        translate_x: 0,
-        translate_y: 0,
-        update_canvas: function() {
-          that.update_canvas(true);
-        },
-        to_json: function() {
-          return {
-            scale: this.scale, 
-            rotate: this.rotate,
-            translate_x: this.translate_x,
-            translate_y: this.translate_y
-          }
-        }
-      });
-
-      if(callback) {
-        callback(that);
-      }
-    }});
-    this.container = $(selector + ' svg');
-  },
-  
-  last_transformation: {
-    translate_x: 0,
-    translate_y: 0,
-    rotate: 0,
-    scale: 1
-  },
+var Screen = function(selector) {
+  var animating = false,
+    animationSteps = 10,
+    canvas = $(selector),
     
-  update_canvas: function(animate) {
+    current_transformation = {
+      scale: 1, 
+      rotate: 0,
+      translate_x: 0,
+      translate_y: 0,
+    },
+    last_transformation = {
+      translate_x: 0,
+      translate_y: 0,
+      rotate: 0,
+      scale: 1
+    };
+  
+
+  var screen = {
+    translate: function(delta_x, delta_y) {
+      current_transformation.translate_x += delta_x;
+      current_transformation.translate_y += delta_y;
+      update_canvas();
+    },
+
+    scale: function(delta_x, delta_y) {
+      var delta_scale = delta_y / -100.0 * current_transformation.scale;
+      current_transformation.scale += delta_scale;
+      update_canvas();
+    },
+
+    rotate: function(delta_x, delta_y) {
+      current_transformation.rotate += delta_x / 5.0;
+      update_canvas();
+    },
+    to_json: function() {
+      return current_transformation;
+    },
+    transform_to: function(target_transformation) {
+      current_transformation = target_transformation;
+      update_canvas(true);
+    }
+  };
+
+  return screen;
+    
+  function update_canvas(animate) {
     if(animate) {
-      var x_interpolator = interpolator(this.last_transformation.translate_x, this.screen.translate_x, this.screen.animationSteps);
-      var y_interpolator = interpolator(this.last_transformation.translate_y, this.screen.translate_y, this.screen.animationSteps);
-      var rotation_interpolator = interpolator(this.last_transformation.rotate, this.screen.rotate, this.screen.animationSteps);
-      var scale_interpolator = interpolator(this.last_transformation.scale, this.screen.scale, this.screen.animationSteps);
+      var x_interpolator = Interpolator(last_transformation.translate_x, current_transformation.translate_x, animationSteps),
+        y_interpolator = Interpolator(last_transformation.translate_y, current_transformation.translate_y, animationSteps);
+        rotation_interpolator = Interpolator(last_transformation.rotate, current_transformation.rotate, animationSteps);
+        scale_interpolator = Interpolator(last_transformation.scale, current_transformation.scale, animationSteps);
       
-      var that = this;
-      this.animating = true;
+      animating = true;
       var animator = window.setInterval(function() {
         var done = x_interpolator.is_done() && y_interpolator.is_done() && rotation_interpolator.is_done() && scale_interpolator.is_done();
         
-        that.transform_canvas(x_interpolator.next(), y_interpolator.next(), rotation_interpolator.next(), scale_interpolator.next());
+        transform_canvas(x_interpolator.next(), y_interpolator.next(), rotation_interpolator.next(), scale_interpolator.next());
         
         if(done) {
           window.clearInterval(animator);
-          that.animating = false;
+          animating = false;
         };
       }, 5);
       
     } else {
-      this.transform_canvas(
-        this.screen.translate_x,
-        this.screen.translate_y,
-        this.screen.rotate,
-        this.screen.scale
-      )
+      transform_canvas(
+        current_transformation.translate_x,
+        current_transformation.translate_y,
+        current_transformation.rotate,
+        current_transformation.scale
+      );
     };
-  },
+  };
   
-  transform_canvas: function(x, y, rotation, scale) {
+  function transform_canvas(x, y, rotation, scale) {
     var transformations = [
-      'translate(' + [parseInt(x) + 'px',
-                      parseInt(y)] + 'px)',
+      'translate(' + [parseInt(x, 10) + 'px',
+                      parseInt(y, 10)] + 'px)',
       'rotate(' + rotation + 'deg' + ')',
       'scale(' + scale + ')'
     ];
-    this.canvas.css('-webkit-transform', transformations.join(' '));
-    this.canvas.css('-webkit-transform-origin', (this.canvas.width()/2 - x) + 'px ' + (this.canvas.height()/2 - y) + 'px');
-    this.last_transformation = {
+    canvas.css('-webkit-transform', transformations.join(' '));
+    canvas.css('-webkit-transform-origin', (canvas.width()/2 - x) + 'px ' + (canvas.height()/2 - y) + 'px');
+    last_transformation = {
       translate_x: x,
       translate_y: y,
       rotate: rotation,
       scale: scale
     }
-  },
+  };
   
-  do_translate: function(delta_x, delta_y) {
-    this.screen.translate_x += delta_x;
-    this.screen.translate_y += delta_y;
-    this.update_canvas();
-  },
-
-  do_scale: function(delta_x, delta_y) {
-    var delta_scale = delta_y / -100.0 * this.screen.scale;
-    this.screen.scale += delta_scale;
-    this.update_canvas();
-  },
-
-  do_rotate: function(delta_x, delta_y) {
-    this.screen.rotate += delta_x / 5.0;
-    this.update_canvas();
-  }
 }

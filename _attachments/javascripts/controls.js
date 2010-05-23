@@ -33,11 +33,11 @@ var bind_controls = function(screen) {
       var delta_x = event.clientX - previous_mouse_x;
       var delta_y = event.clientY - previous_mouse_y;
       if(!key_down && mouse_down) {
-        screen.do_translate(delta_x, delta_y);
+        screen.translate(delta_x, delta_y);
       } else if(key_down == 'scale') {
-        screen.do_scale(delta_x, delta_y);
+        screen.scale(delta_x, delta_y);
       } else if(key_down == 'rotate') {
-        screen.do_rotate(delta_x, delta_y);
+        screen.rotate(delta_x, delta_y);
       };
     };
     previous_mouse_x = event.clientX;

@@ -33,23 +33,23 @@ $(function() {
   });
   
   $('#presentation').change(function() {
-    location.href = location.pathname + '?svg=../../' + $(this).val() + '/' + $(this).find(':selected').text();
+    location.href = location.pathname + '?presentation=../../' + $(this).val() + '/' + $(this).find(':selected').text();
   });
   
-  var svg_path = window.location.href.match(/svg=(.+\.svg)/);
-  if(svg_path == null) {
+  var presentation_path = window.location.href.match(/presentation=(.+\.(?:svg|png|gif))/);
+  if(presentation_path == null) {
     $('#screen').html('<div class="notice">Plese select a presentation from the list in the toolbar. If there is none attach one to any document.</div>');
     return;
   } else {
-    svg_path = svg_path[1];
-    $('title').text(svg_path.split('/').reverse()[0] + ' - boom amazing');
+    presentation_path = presentation_path[1];
+    $('title').text(presentation_path.split('/').reverse()[0] + ' - boom amazing');
   };
 
-  var _screen = null;
-  Screen.init('#screen', svg_path, function(__screen) {
-    _screen = __screen.screen;
-    bind_controls(__screen);
-  });
+  
+  $('#screen').svg({loadURL: presentation_path});
+  var _screen = Screen('#screen');
+  bind_controls(_screen);
+  
 
   var sammy = $.sammy(function() { with(this) {
     element_selector = '#controls';
@@ -73,11 +73,8 @@ $(function() {
         endkey: [context.current_presentation_id(), {}],
         success: function(json) {
           var slide = json['rows'][0]['doc'];
-          var transformaton = slide['transformation'];
-          for(var i in transformaton) {
-            _screen[i] = transformaton[i];
-          };
-          _screen.update_canvas();
+          var transformation = slide['transformation'];
+          _screen.transform_to(transformation);
           $('#current_slide').text(slide_number);
           $('#next_link').attr('href', '#/slides/' + (slide_number + 1));
           $('#previous_link').attr('href', '#/slides/' + (slide_number > 1 ? slide_number - 1 : 1));
