@@ -7,7 +7,7 @@ var Screen = function(selector) {
       scale: 1, 
       rotate: 0,
       translate_x: 0,
-      translate_y: 0,
+      translate_y: 0
     },
     last_transformation = {
       translate_x: 0,
@@ -15,7 +15,52 @@ var Screen = function(selector) {
       rotate: 0,
       scale: 1
     };
-  
+    
+  function update_canvas(animate) {
+    if(animate) {
+      var x_interpolator = Interpolator(last_transformation.translate_x, current_transformation.translate_x, animationSteps),
+        y_interpolator = Interpolator(last_transformation.translate_y, current_transformation.translate_y, animationSteps);
+        rotation_interpolator = Interpolator(last_transformation.rotate, current_transformation.rotate, animationSteps);
+        scale_interpolator = Interpolator(last_transformation.scale, current_transformation.scale, animationSteps);
+
+      animating = true;
+      var animator = window.setInterval(function() {
+        var done = x_interpolator.is_done() && y_interpolator.is_done() && rotation_interpolator.is_done() && scale_interpolator.is_done();
+
+        transform_canvas(x_interpolator.next(), y_interpolator.next(), rotation_interpolator.next(), scale_interpolator.next());
+
+        if(done) {
+          window.clearInterval(animator);
+          animating = false;
+        };
+      }, 5);
+
+    } else {
+      transform_canvas(
+        current_transformation.translate_x,
+        current_transformation.translate_y,
+        current_transformation.rotate,
+        current_transformation.scale
+      );
+    };
+  };
+
+  function transform_canvas(x, y, rotation, scale) {
+    var transformations = [
+      'translate(' + [parseInt(x, 10) + 'px',
+                      parseInt(y, 10)] + 'px)',
+      'rotate(' + rotation + 'deg' + ')',
+      'scale(' + scale + ')'
+    ];
+    canvas.css('-webkit-transform', transformations.join(' '));
+    canvas.css('-webkit-transform-origin', (canvas.width()/2 - x) + 'px ' + (canvas.height()/2 - y) + 'px');
+    last_transformation = {
+      translate_x: x,
+      translate_y: y,
+      rotate: rotation,
+      scale: scale
+    };
+  };
 
   var screen = {
     translate: function(delta_x, delta_y) {
@@ -48,50 +93,5 @@ var Screen = function(selector) {
 
   return screen;
     
-  function update_canvas(animate) {
-    if(animate) {
-      var x_interpolator = Interpolator(last_transformation.translate_x, current_transformation.translate_x, animationSteps),
-        y_interpolator = Interpolator(last_transformation.translate_y, current_transformation.translate_y, animationSteps);
-        rotation_interpolator = Interpolator(last_transformation.rotate, current_transformation.rotate, animationSteps);
-        scale_interpolator = Interpolator(last_transformation.scale, current_transformation.scale, animationSteps);
-      
-      animating = true;
-      var animator = window.setInterval(function() {
-        var done = x_interpolator.is_done() && y_interpolator.is_done() && rotation_interpolator.is_done() && scale_interpolator.is_done();
-        
-        transform_canvas(x_interpolator.next(), y_interpolator.next(), rotation_interpolator.next(), scale_interpolator.next());
-        
-        if(done) {
-          window.clearInterval(animator);
-          animating = false;
-        };
-      }, 5);
-      
-    } else {
-      transform_canvas(
-        current_transformation.translate_x,
-        current_transformation.translate_y,
-        current_transformation.rotate,
-        current_transformation.scale
-      );
-    };
-  };
-  
-  function transform_canvas(x, y, rotation, scale) {
-    var transformations = [
-      'translate(' + [parseInt(x, 10) + 'px',
-                      parseInt(y, 10)] + 'px)',
-      'rotate(' + rotation + 'deg' + ')',
-      'scale(' + scale + ')'
-    ];
-    canvas.css('-webkit-transform', transformations.join(' '));
-    canvas.css('-webkit-transform-origin', (canvas.width()/2 - x) + 'px ' + (canvas.height()/2 - y) + 'px');
-    last_transformation = {
-      translate_x: x,
-      translate_y: y,
-      rotate: rotation,
-      scale: scale
-    }
-  };
-  
-}
+
+};

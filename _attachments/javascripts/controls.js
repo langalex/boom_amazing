@@ -44,4 +44,4 @@ var bind_controls = function(screen) {
     previous_mouse_y = event.clientY;
   });
   
-}
+};
