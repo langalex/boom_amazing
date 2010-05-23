@@ -1,7 +1,6 @@
-var Screen = function(selector) {
+var Screen = function(canvas) {
   var animating = false,
     animationSteps = 10,
-    canvas = $(selector),
     
     current_transformation = {
       scale: 1, 

@@ -20,7 +20,7 @@ body {
   color: #666;
 }
 
-#controls {
+#toolbar {
   position: absolute;
   top: -30px;
   left: 0px;
@@ -37,11 +37,11 @@ body {
   height: 760px;
 }
 
-#controls form {
+#toolbar form {
   display: inline-block;
 }
 
-#controls a, #controls form input[type=submit] {
+#toolbar a, #toolbar form input[type=submit] {
   text-decoration: none;
   background-color: #666;
   border: 1px solid #999;
