@@ -26,9 +26,9 @@ var bind_controls = function(screen) {
   });
 
   $('html').mousemove(function(event) {
-    // if(this.animating) {
-    //     return;
-    //   }
+    if(screen.is_animating()) {
+        return;
+      }
     if(previous_mouse_x != null) {
       var delta_x = event.clientX - previous_mouse_x;
       var delta_y = event.clientY - previous_mouse_y;

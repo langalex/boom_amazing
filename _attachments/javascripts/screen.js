@@ -40,6 +40,9 @@ var Screen = function(selector) {
     transform_to: function(target_transformation) {
       current_transformation = target_transformation;
       update_canvas(true);
+    },
+    is_animating: function() {
+      return animating;
     }
   };
 
