@@ -63,8 +63,8 @@ var Screen = function(canvas) {
 
   var screen = {
     translate: function(delta_x, delta_y) {
-      current_transformation.translate_x += delta_x;
-      current_transformation.translate_y += delta_y;
+      current_transformation.translate_x += (delta_x / current_transformation.scale);
+      current_transformation.translate_y += (delta_y / current_transformation.scale);
       update_canvas();
     },
 
