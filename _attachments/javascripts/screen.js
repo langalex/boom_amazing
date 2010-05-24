@@ -52,7 +52,7 @@ var Screen = function(canvas) {
       'scale(' + scale + ')'
     ];
     canvas.css('-webkit-transform', transformations.join(' '));
-    canvas.css('-webkit-transform-origin', (canvas.width()/2 - x) + 'px ' + (canvas.height()/2 - y) + 'px');
+    canvas.css('-webkit-transform-origin', (1024/2 - x) + 'px ' + (768/2 - y) + 'px');
     last_transformation = {
       translate_x: x,
       translate_y: y,
