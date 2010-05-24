@@ -87,10 +87,26 @@ var Screen = function(canvas) {
     },
     is_animating: function() {
       return animating;
+    },
+    load_presentation: function(path) {
+      if(path.match(/\.svg/)) {
+        canvas.svg({loadURL: path});
+      } else {
+        canvas.css('background-image', 'url(' + path + ')');
+        var img = $('<img src="' + path + '"/>').get(0);
+        var interval = window.setInterval(function() {
+          if(img_loaded()) {
+            canvas.width(img.width).height(img.height);
+            window.clearInterval(interval);
+          };
+          
+          function img_loaded() {
+            return img.width > 0;
+          }
+        }, 10);
+      };
     }
   };
 
   return screen;
-    
-
 };

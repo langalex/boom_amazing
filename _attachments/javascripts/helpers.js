@@ -39,25 +39,9 @@ helpers = {
       $('title').text(this.presentation_path().split('/').reverse()[0] + ' - boom amazing');
     };
   },
-  load_presentation: function() {
+  load_presentation: function(screen) {
     if(this.presentation_path()) {
-      if(this.presentation_path().match(/\.svg/)) {
-        $('#screen').svg({loadURL: this.presentation_path()});
-      } else {
-        $('#screen').css('background-image', 'url(' + this.presentation_path() + ')');
-        var img = $('<img src="' + this.presentation_path() + '"/>').get(0);
-        var interval = window.setInterval(function() {
-          if(img_loaded()) {
-            $('#screen').width(img.width).height(img.height);
-            window.clearInterval(interval);
-          };
-          
-          function img_loaded() {
-            return img.width > 0;
-          }
-        }, 10);
-        $('#screen').width(img.width).height(img.height);
-      };
+      screen.load_presentation(this.presentation_path());
     };
   },
   presentation_path: function() {

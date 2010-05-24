@@ -7,13 +7,14 @@ $(function() {
     store = Store(couchapp);
   });
   
+  screen = Screen(screen_node);
+  
   helpers.init_toolbar();
   helpers.init_keyboard_controls();
   helpers.load_presentations(store);
   helpers.init_screen_display(screen_node);
-  helpers.load_presentation();
+  helpers.load_presentation(screen);
   
-  screen = Screen(screen_node);
   bind_controls(screen);
 
   var sammy = $.sammy(function() {
