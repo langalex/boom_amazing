@@ -56,9 +56,9 @@ $(function() {
     });
 
   });
-  sammy.run();
   
   $(window).bind('presentations-loaded', function() {
+    sammy.run();
     sammy.trigger('init');
   });
   
