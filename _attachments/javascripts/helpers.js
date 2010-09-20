@@ -45,7 +45,7 @@ helpers = {
     };
   },
   presentation_path: function() {
-    var match = window.location.href.match(/presentation=(.+\.(?:svg|png|gif))/);
+    var match = window.location.href.match(/presentation=(.+\.(?:svg|png|gif|pdf))/);
     return match ? match[1] : null;
   },
   init_keyboard_controls: function() {

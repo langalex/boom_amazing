@@ -92,8 +92,8 @@ var Screen = function(canvas) {
       if(path.match(/\.svg/)) {
         canvas.svg({loadURL: path});
       } else {
-        canvas.css('background-image', 'url(' + path + ')');
-        var img = $('<img src="' + path + '"/>').get(0);
+        canvas.html('<img src="' + path + '"/>');
+        var img = canvas.find('img').get(0);
         var interval = window.setInterval(function() {
           if(img_loaded()) {
             canvas.width(img.width).height(img.height);

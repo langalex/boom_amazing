@@ -7,25 +7,27 @@ var bind_controls = function(screen) {
   $('html').keydown(function(_event) {
     if(event.altKey) {
       key_down = 'scale';
-    }
+    };
     if(event.ctrlKey) {
       key_down = 'rotate';
-    }
+    };
   });
   
   $('html').keyup(function(event) {
     key_down = null;
   });
   
-  $('html').mousedown(function(event) {
+  $('#screen').mousedown(function(event) {
     mouse_down = true;
+    return false;
   });
   
-  $('html').mouseup(function(event) {
+  $('#screen').mouseup(function(event) {
     mouse_down = false;
+    return false;
   });
 
-  $('html').mousemove(function(event) {
+  $('#screen').mousemove(function(event) {
     if(screen.is_animating()) {
         return;
       }
