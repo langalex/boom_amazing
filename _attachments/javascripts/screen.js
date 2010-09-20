@@ -32,7 +32,7 @@ var Screen = function(canvas) {
           window.clearInterval(animator);
           animating = false;
         };
-      }, 5);
+      }, 50);
 
     } else {
       transform_canvas(
