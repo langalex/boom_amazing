@@ -1,6 +1,7 @@
 var Screen = function(canvas) {
   var animating = false,
     animationSteps = 10,
+    scale_factor = 1,
     
     current_transformation = {
       scale: 1, 
@@ -32,7 +33,7 @@ var Screen = function(canvas) {
           window.clearInterval(animator);
           animating = false;
         };
-      }, 50);
+      }, 500 / animationSteps);
 
     } else {
       transform_canvas(
@@ -49,7 +50,7 @@ var Screen = function(canvas) {
       'translate(' + [parseInt(x, 10) + 'px',
                       parseInt(y, 10)] + 'px)',
       'rotate(' + rotation + 'deg' + ')',
-      'scale(' + scale + ')'
+      'scale(' + scale * scale_factor + ')'
     ];
     canvas.css('-webkit-transform', transformations.join(' '));
     canvas.css('-webkit-transform-origin', (1024/2 - x) + 'px ' + (768/2 - y) + 'px');
@@ -62,6 +63,15 @@ var Screen = function(canvas) {
   };
 
   var screen = {
+    scale_factor: function(factor) {
+      scale_factor = factor;
+      update_canvas(true);
+    },
+    
+    animation_steps: function(steps) {
+      animationSteps = steps;
+    },
+    
     translate: function(delta_x, delta_y) {
       current_transformation.translate_x += (delta_x / current_transformation.scale);
       current_transformation.translate_y += (delta_y / current_transformation.scale);

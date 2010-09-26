@@ -1,7 +1,8 @@
 $(function() {
   var store = null,
     screen_node = $('#screen'),
-    screen = null;
+    screen = null,
+    audience_display = null;
     
   $.CouchApp(function(couchapp) {
     store = Store(couchapp);
@@ -35,6 +36,9 @@ $(function() {
         $('#next_link').attr('href', '#/slides/' + (slide_number + 1));
         $('#previous_link').attr('href', '#/slides/' + (slide_number > 1 ? slide_number - 1 : 1));
       });
+      if(audience_display !== null) {
+        audience_display.location.href = location.href;
+      };
     });
     
     this.post('#/slides', function(context) {
@@ -60,6 +64,18 @@ $(function() {
   $(window).bind('presentations-loaded', function() {
     sammy.run();
     sammy.trigger('init');
+    
+    $('#presenter_display_link').live('click', function(e) {
+      e.preventDefault();
+      if(audience_display === null) {
+        audience_display = window.open(location.href, 'audience_display', 'location=no,menubar=no,status=no,toolbar=no,titlebar=no');
+        screen.scale_factor(0.5);
+        screen.animation_steps(4);
+        $('#presenter_overlay')
+          .css('margin-top', '-' + $('#screen').height() + 'px')
+          .show();
+      };
+    });
   });
   
 });

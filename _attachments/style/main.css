@@ -6,6 +6,7 @@ body {
   background-color: white;
   margin: 0px;
   padding: 0px;
+  overflow: hidden;
 }
 
 .hint {
@@ -35,6 +36,13 @@ body {
 #screen {
   width: 1024px;
   height: 768px;
+}
+
+#presenter_overlay {
+  width: 1024px;
+  height: 768px;
+  background: url(../images/presenter_overlay.png);
+  display:none;
 }
 
 #container {
