@@ -70,7 +70,6 @@ $(function() {
       if(audience_display === null) {
         audience_display = window.open(location.href, 'audience_display', 'location=no,menubar=no,status=no,toolbar=no,titlebar=no');
         screen.scale_factor(0.5);
-        screen.animation_steps(4);
         $('#presenter_overlay')
           .css('margin-top', '-' + $('#screen').height() + 'px')
           .show();

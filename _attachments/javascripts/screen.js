@@ -1,6 +1,5 @@
 var Screen = function(canvas) {
   var animating = false,
-    animationSteps = 10,
     scale_factor = 1,
     
     current_transformation = {
@@ -18,37 +17,22 @@ var Screen = function(canvas) {
     
   function update_canvas(animate) {
     if(animate) {
-      var x_interpolator = Interpolator(last_transformation.translate_x, current_transformation.translate_x, animationSteps),
-        y_interpolator = Interpolator(last_transformation.translate_y, current_transformation.translate_y, animationSteps);
-        rotation_interpolator = Interpolator(last_transformation.rotate, current_transformation.rotate, animationSteps);
-        scale_interpolator = Interpolator(last_transformation.scale, current_transformation.scale, animationSteps);
-
-      animating = true;
-      var animator = window.setInterval(function() {
-        var done = x_interpolator.is_done() && y_interpolator.is_done() && rotation_interpolator.is_done() && scale_interpolator.is_done();
-
-        transform_canvas(x_interpolator.next(), y_interpolator.next(), rotation_interpolator.next(), scale_interpolator.next());
-
-        if(done) {
-          window.clearInterval(animator);
-          animating = false;
-        };
-      }, 500 / animationSteps);
-
+      canvas.css('-webkit-transition', 'all 0.5s linear').css('-moz-transition', 'all 0.5s linear').css('-o-transition', 'all 0.5s linear')
     } else {
-      transform_canvas(
-        current_transformation.translate_x,
-        current_transformation.translate_y,
-        current_transformation.rotate,
-        current_transformation.scale
-      );
+      canvas.css('-webkit-transition', '').css('-moz-transition', '').css('-o-transition', '')
     };
+    transform_canvas(
+      current_transformation.translate_x,
+      current_transformation.translate_y,
+      current_transformation.rotate,
+      current_transformation.scale
+    );
   };
 
   function transform_canvas(x, y, rotation, scale) {
     var transformations = [
-      'translate(' + [parseInt(x, 10) + 'px',
-                      parseInt(y, 10)] + 'px)',
+      'translate3d(' + [parseInt(x, 10) + 'px',
+                      parseInt(y, 10)] + 'px, 0px)',
       'rotate(' + rotation + 'deg' + ')',
       'scale(' + scale * scale_factor + ')'
     ];
@@ -66,10 +50,6 @@ var Screen = function(canvas) {
     scale_factor: function(factor) {
       scale_factor = factor;
       update_canvas(true);
-    },
-    
-    animation_steps: function(steps) {
-      animationSteps = steps;
     },
     
     translate: function(delta_x, delta_y) {
@@ -94,9 +74,6 @@ var Screen = function(canvas) {
     transform_to: function(target_transformation) {
       current_transformation = target_transformation;
       update_canvas(true);
-    },
-    is_animating: function() {
-      return animating;
     },
     load_presentation: function(path) {
       if(path.match(/\.svg/)) {
